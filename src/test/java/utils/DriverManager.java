@@ -25,15 +25,23 @@ public class DriverManager {
                 new String[]{"enable-automation"});
             options.setExperimentalOption("useAutomationExtension", false);
 
+            if (Boolean.parseBoolean(System.getenv("CI"))) {
+                options.addArguments("--headless=new");
+                options.addArguments("--no-sandbox");
+                options.addArguments("--disable-dev-shm-usage");
+                options.addArguments("--window-size=1920,1080");
+                System.out.println("Running in HEADLESS mode (CI environment)");
+            } else {
+                System.out.println("Running in HEADED mode (local environment)");
+            }
+
             WebDriver driver = new ChromeDriver(options);
-
             driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
-
             driverThread.set(driver);
         }
         return driverThread.get();
     }
-
+    
     public static void quitDriver() {
         if (driverThread.get() != null) {
             driverThread.get().quit();
